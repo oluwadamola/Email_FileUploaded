@@ -1,0 +1,78 @@
+﻿@model IEnumerable<EmailUploadedDocument.Models.Document>
+
+@{
+    ViewBag.Title = "List Uploaded Document";
+}
+
+<h2>List Uploaded Document</h2>
+
+<p>
+    @Html.ActionLink("Create New", "CreateUser")
+</p>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            <LabelFor name="lblEmail" />
+            <div class="col-md-10">
+                <input type="text" id="Email" name="Email" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <LabelFor name="lblTransNum" />
+            <div class="col-md-10">
+                <input type="text" id="TransNum" name="TransNum" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="search" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.DocumentName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TransactionNumber)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Extension)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.User.UserName)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.DocumentName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.TransactionNumber)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Extension)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.User.UserName)
+        </td>
+        <td>
+           @Html.ActionLink("View", "ViewDocument", new { id=item.DocumentId })
+        </td>
+    </tr>
+}
+
+</table>
