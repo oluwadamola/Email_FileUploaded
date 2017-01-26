@@ -1,4 +1,4 @@
-﻿using EmailUploadedDocument.Models;
+﻿using EmailUploadedDocument.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -39,7 +39,7 @@ namespace EmailUploadedDocument.Controllers
             {
                 var transn = GenerateTransNumber();
                 List<Attachment> attachments = new List<Attachment>();
-                while (_db.Documents.Where(d => d.TransactionNumber == transn).Any())
+                while (_db.Documents.Any(d => d.TransactionNumber == transn))
                 {
                     transn = GenerateTransNumber();
                 }
@@ -126,33 +126,32 @@ namespace EmailUploadedDocument.Controllers
         }
         public ActionResult ViewDocument(int id = 0)
         {
-            Document document = _db.Documents.Where(d => d.DocumentId == id).FirstOrDefault();
-            document.DocumentString = "data:image/png;base64," + Convert.ToBase64String(document.Doc);
-            return View(document);
+            Document document = _db.Documents.FirstOrDefault(d => d.DocumentId == id);
+            if (document != null)
+            {
+                document.DocumentString = "data:image/png;base64," + Convert.ToBase64String(document.Doc);
+                return View(document);
+            }
+            return View();
         }
-        public ActionResult List(int? userId, string Email, string TransNum)
+        public ActionResult List(int? userId, string email, string transNum)
         {
             List<Document> documents = new List<Document>();
 
             try
             {
-                if (TempData["userId"] == null && string.IsNullOrEmpty(Email) && string.IsNullOrEmpty(TransNum))
+                if (TempData["userId"] == null && string.IsNullOrEmpty(email) && string.IsNullOrEmpty(transNum))
                     documents = _db.Documents.ToList();
-                else if (!(string.IsNullOrEmpty(Email) && string.IsNullOrEmpty(TransNum)))
+                else if (!(string.IsNullOrEmpty(email) && string.IsNullOrEmpty(transNum)))
                 {
-                    User user = _db.Users.Where(u => u.Email == Email).FirstOrDefault();
+                    User user = _db.Users.FirstOrDefault(u => u.Email == email);
                     if (user == null)
                     {
                         ModelState.AddModelError("", "Email does not exit in system");
                         return View(documents);
                     }
-                    long TransNo = long.Parse(TransNum);
-                    documents = _db.Documents.Where(d => d.UserId == user.UserId && d.TransactionNumber == TransNo).ToList();
-                    if (documents == null)
-                    {
-                        ModelState.AddModelError("", "Transaction Number does not exit in system");
-                        return View(documents);
-                    }
+                    long transNo = long.Parse(transNum);
+                    documents = _db.Documents.Where(d => d.UserId == user.UserId && d.TransactionNumber == transNo).ToList();
                 }
                 else
                 {

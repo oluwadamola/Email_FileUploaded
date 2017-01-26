@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace EmailUploadedDocument.Models
+namespace EmailUploadedDocument.Core.Models
 {
     public class User
     {

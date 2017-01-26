@@ -1,4 +1,4 @@
-﻿@model EmailUploadedDocument.Models.User
+﻿@model EmailUploadedDocument.Core.Models.User
 
 @{
     ViewBag.Title = "User";
@@ -45,19 +45,26 @@
             </div>
         </div>
 
-        <div class="progress progress-striped col-md-3 col-md-offset-2">
-            <div class="progress-bar progress-bar-success">0%</div>
-        </div>
-
-        <div id="status"></div>
-        
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
-                <a href="/User/List" class="btn btn-info" role="button">Display</a>
+        <div class="form-group ">
+            <div class="col-md-3 col-md-offset-2">
+                <progress id="progressBar" style="width: 300px;" value="0" max="100"></progress>
             </div>
         </div>
-    </div>
+        <div class="form-group ">
+            <div class="col-md-6">
+                <h3 id="status"></h3>
+            </div>
+            <div class="col-md-6">
+                <div id="loaded_n_total"></div>
+            </div>
+         </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Create" class="btn btn-default" onclick="UploadFile()" />
+                </div>
+            </div>
+        </div>
 }
 
 @*@section Scripts {
@@ -72,32 +79,41 @@
 
 
 <script>
-    (function () {
-        var bar = $('.progress-bar');
-        var percent = $('.progress-bar');
-        var status = $('#status');
 
-        $('form').ajaxForm({
-            beforeSend: function () {
-                status.empty();
-                var percentVal = '0%';
-                bar.width(percentVal);
-                percent.html(percentVal);
-            },
-            uploadProgress: function (event, position, total, percentComplete) {
-                var percentVal = percentComplete + '%';
-                bar.width(percentVal);
-                percent.html(percentVal);
-            },
-            success: function () {
-                var percentVal = '100%';
-                bar.width(percentVal);
-                percent.html(percentVal);
-            },
-            complete: function (xhr) {
-                status.html(xhr.responseText);
-            }
-        });
+    function UploadFile() {
+        var counter;
+        var files = $("#upload").get(0).files;
+        counter = 0;
 
-    })();
+        // Loop through files
+        for (var i = 0; i < files.length ; i++) {
+            var file = files[i];
+            var formdata = new FormData();
+            formdata.append("file1", file);
+            var ajax = new XMLHttpRequest();
+
+            ajax.upload.addEventListener("progress", progressHandler, false);
+            ajax.addEventListener("load", completeHandler, false);
+            ajax.addEventListener("error", errorHandler, false);
+            ajax.addEventListener("abort", abortHandler, false);
+            ajax.open("POST", "User/CreateUser");
+            ajax.send(formdata);
+        }
+    }
+
+    function progressHandler(event) {
+        $("#loaded_n_total").html("Uploaded " + event.loaded + " bytes of " + event.total);
+        var percent = (event.loaded / event.total) * 100;
+        $("#progressBar").val(Math.round(percent));
+        $("#status").html(Math.round(percent) + "% uploaded... please wait");
+    }
+    function completeHandler(event) {
+        counter++
+        $("#status").html(counter + " " + event.target.responseText);
+    }
+    function errorHandler(event) {
+        $("#status").html("Upload Failed");
+    } function abortHandler(event) {
+        $("#status").html("Upload Aborted");
+    }
 </script>

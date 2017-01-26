@@ -1,7 +1,7 @@
 ﻿using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
 
-namespace EmailUploadedDocument.Models
+namespace EmailUploadedDocument.Core.Models
 {
     public class DataEntities : DbContext
     {

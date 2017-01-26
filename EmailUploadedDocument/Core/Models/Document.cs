@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace EmailUploadedDocument.Models
+namespace EmailUploadedDocument.Core.Models
 {
     public class Document
     {
