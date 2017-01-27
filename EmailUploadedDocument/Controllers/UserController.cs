@@ -33,7 +33,7 @@ namespace EmailUploadedDocument.Controllers
         }
 
         [HttpPost]
-        public ActionResult CreateUser(User user, HttpPostedFileBase upload)
+        public ActionResult CreateUser(User user, HttpPostedFileBase uploaded)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace EmailUploadedDocument.Controllers
                 {
                     transn = GenerateTransNumber();
                 }
-                if (upload.ContentLength > 0)
+                if (uploaded.ContentLength > 0)
                 {
                     HttpFileCollectionBase files = Request.Files;
                     for (int i = 0; i < files.Count; i++)
@@ -63,7 +63,8 @@ namespace EmailUploadedDocument.Controllers
                         attachments.Add(new Attachment(memoryStream, path, "image/jpeg"));
                     }
                 }
-                SendMail("noresponse@smail.com", user.Email, "sending files", "am sending you some files", attachments);
+                //SendMail("noresponse@smail.com", user.Email, "sending files", "am sending you some files", attachments);
+                SendMail2("noresponse@smail.com", user.Email, "sending files", "am sending you some files", attachments, user.UserName);
                 _db.Users.Add(user);
                 _db.SaveChanges();
                 return View(); //Redirect("list");
@@ -101,6 +102,53 @@ namespace EmailUploadedDocument.Controllers
             client.EnableSsl = true;
             client.Send(message);
 
+        }
+
+        public static void SendMail2(string from, string to, string title, string body, List<Attachment> atachtments, string name)
+        {
+            try
+            {
+                //Send to user
+
+                SmtpClient smtpClient1 = new SmtpClient();
+                MailMessage message1 = new MailMessage();
+
+                message1.IsBodyHtml = true;
+                MailAddress fromAddress1 = new MailAddress("noreply@steve.org", title);
+                MailAddress toAddress1 = new MailAddress(to, title);
+                message1.From = fromAddress1;
+                message1.To.Add(toAddress1);
+                message1.Subject = title;
+                message1.Body = "<html><head><title>" + title + "</title></head>" +
+                    "<body style='font-family: calibri, \"Century Gothic\";'>" +
+                    "<div><h2>Sending Email With Attachment</h2></div><br/>" +
+                               "<div><p>" + "Dear " + name + "<br/><br/>"
+                               + "Please find attached file for your perusal" 
+
+                               + "</div>" +
+                    "</body></html>";
+                foreach (var atachment in atachtments)
+                {
+                    message1.Attachments.Add(atachment);
+                }
+
+                smtpClient1.Host = "smtp.elasticemail.com";
+                smtpClient1.Port = 2525;
+                smtpClient1.EnableSsl = true;
+                smtpClient1.Credentials = new System.Net.NetworkCredential("softwaredev@cyberspace.net.ng", "5b8a6fd9-8e07-4748-affa-0dcc39bf6754");//not neccessary
+                smtpClient1.Send(message1);
+
+                //smtpClient1.Host = "smtp-pulse.com";
+                //smtpClient1.Port = 2525;
+                //smtpClient1.EnableSsl = false;
+                //smtpClient1.Credentials = new System.Net.NetworkCredential("noreplykaysteph@gmail.com", "KDeisS3tJLB");//not neccessary
+                //smtpClient1.Send(message1);
+            }
+            catch (Exception ex)
+            {
+                ex.GetBaseException();
+
+            }
         }
 
 
